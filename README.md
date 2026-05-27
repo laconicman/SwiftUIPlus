@@ -20,6 +20,27 @@ You can also give me a follow and a 'thanks' anytime.
 
 ## Additions
 
+#### BottomActionSheet (iOS only)
+
+A bottom-anchored action-sheet card that always slides up from the bottom of the screen and sizes to its content, on every iOS device and size class — including iPad regular size class, where `.confirmationDialog` and `.sheet + presentationDetents` fall back to popovers. Mirrors the `.sheet` API surface with `isPresented:` and `item:` overloads. Dismissal works via the consumer's binding, `@Environment(\.dismiss)` (iOS 15+) from inside `content`, backdrop tap, swipe-down, VoiceOver escape, and hardware Escape — all routed through the same card-exit animation. Supports `.isModal`, Reduce Motion, and drag-to-dismiss.
+
+```swift
+struct CancelSheetContent: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button("Cancel") { dismiss() }
+    }
+}
+
+someView
+    .bottomActionSheet(isPresented: $isShowing) {
+        CancelSheetContent()
+    }
+```
+
+Different shape from a detent-style bottom sheet (fills modal heights, drag between detents). For that, see [`c-villain/BottomSheets`](https://github.com/c-villain/BottomSheets).
+
 #### FittingGeometryReader
 
 A `GeometryReader` that auto-sizes itself, enabling you to size your content automatically, while still gaining access to the proxy's values like its runtime size.
