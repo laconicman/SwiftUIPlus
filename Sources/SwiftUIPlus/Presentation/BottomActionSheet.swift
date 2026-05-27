@@ -175,6 +175,12 @@ private extension BottomActionSheet {
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) { coverPresented = false }
+            // If the consumer flipped `isPresented` back to true while the
+            // exit animation was still running, `.onChange(of: isPresented)`
+            // above will not re-fire (the value didn't change from its
+            // perspective). Re-present here so the binding stays consistent
+            // with what the user sees.
+            if isPresented { presentCover() }
         }
     }
 
@@ -259,6 +265,11 @@ private extension BottomActionSheet {
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) { coverItem = nil }
+            // Same rapid-toggle protection as IsPresentedModifier.dropCover:
+            // if the consumer re-set `item` to a non-nil value during the
+            // exit animation, `.onChange(of: item?.id)` will not re-fire for
+            // an identity that's already been seen, so re-present here.
+            if item != nil { presentCover() }
         }
     }
 
