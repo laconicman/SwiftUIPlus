@@ -18,7 +18,14 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/shaps80/SwiftUIBackports", from: "2.8.0")
+        // TEMPORARY: Pinned to the laconicman/SwiftUIBackports fork because
+        // BottomActionSheet's iOS 15-16.3 fallback calls
+        // `.backport.presentationBackground(.clear)`, which is not yet in
+        // shaps80/SwiftUIBackports. Tracked upstream in
+        // https://github.com/shaps80/SwiftUIBackports/pull/83.
+        // Flip back to `.package(url: "https://github.com/shaps80/SwiftUIBackports", from: "<TAG>")`
+        // once that PR merges and a new tag is cut.
+        .package(url: "https://github.com/laconicman/SwiftUIBackports", branch: "main")
     ],
     targets: [
         .target(name: "SwiftUIPlus", dependencies: ["SwiftUIBackports"])
