@@ -213,7 +213,7 @@ private extension BottomActionSheet {
                     }
                 }
                 .onAppear {
-                    if let item = item, coverItem == nil { coverItem = item }
+                    if item != nil, coverItem == nil { presentCover() }
                 }
         }
 
