@@ -113,29 +113,6 @@ public enum BottomActionSheet {
     public static let defaultDragMinimumDistance: CGFloat = 20
 }
 
-// MARK: - onChange compatibility shim
-
-/// Wraps `.onChange(of:perform:)` so the iOS 17 deprecation of the
-/// single-parameter form is contained in one place. On iOS 17+ this routes
-/// to the two-parameter form; below iOS 17 it falls back to the
-/// single-parameter form. Adopt this in lieu of calling `.onChange` directly
-/// to keep the SwiftUI deprecation warning localised here rather than
-/// scattering it across every observer site.
-@available(iOS 15, *)
-private extension View {
-    @ViewBuilder
-    func versionedOnChange<Value: Equatable>(
-        of value: Value,
-        perform action: @escaping (Value) -> Void
-    ) -> some View {
-        if #available(iOS 17, *) {
-            self.onChange(of: value) { _, newValue in action(newValue) }
-        } else {
-            self.onChange(of: value, perform: action)
-        }
-    }
-}
-
 // MARK: - View modifiers
 
 @available(iOS 15, *)
@@ -168,7 +145,7 @@ private extension BottomActionSheet {
                     )
                     .id(presentationKey)
                 }
-                .versionedOnChange(of: isPresented) { newValue in
+                .backport.onChange(of: isPresented) { _, newValue in
                     if newValue && !coverPresented { presentCover() }
                 }
                 .onAppear {
@@ -246,7 +223,7 @@ private extension BottomActionSheet {
                         .id(presentationKey)
                     }
                 }
-                .versionedOnChange(of: item?.id) { newId in
+                .backport.onChange(of: item?.id) { _, newId in
                     if newId == nil { return }
                     if coverItem == nil {
                         presentCover()
@@ -345,7 +322,7 @@ private extension BottomActionSheet {
             .task {
                 withAnimation(presentAnimation) { isVisible = true }
             }
-            .versionedOnChange(of: isPresented) { newValue in
+            .backport.onChange(of: isPresented) { _, newValue in
                 // The consumer's binding became false — from any path:
                 // their own code, `\.dismiss`, backdrop tap, drag-to-dismiss,
                 // VoiceOver escape, hardware Escape. Play the exit animation

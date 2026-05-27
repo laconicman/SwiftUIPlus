@@ -14,6 +14,15 @@ Open architectural questions and known limitations. New entries go at the top of
 - The `.backport.presentationBackground(.clear)` fallback on iOS 15–16.3 walks the responder chain via `SwiftUIBackports` to find the enclosing `UIHostingController` and clears its background. Robust in practice but a UIKit-level monkey-patch.
 - The card-dismiss sequencing uses `CATransaction.setCompletionBlock` to drop the cover only after `withAnimation` settles. Widely used pattern, not strictly contractual; an obvious safety-net would be a `Task.sleep` deadline that re-introduces the magic-number problem we set out to avoid.
 
+**Accepted iOS 17+ deprecation warnings.**
+
+The state observer sites in `BottomActionSheet.swift` use `.backport.onChange(of:_:)` from `SwiftUIBackports`. By the upstream `shaps80/SwiftUIBackports` convention, each backport is marked `@available(iOS, deprecated: <native-introduced-version>)` so consumers get a nudge to switch to the native API once they can. For the two-parameter `onChange(of:initial:_:)` backport that means a deprecation warning at every call site when building with the iOS 17 SDK, regardless of deployment target. We accept these warnings as a feature of the convention rather than:
+
+- Reintroducing a private `versionedOnChange` shim with `#available(iOS 17, *)` branches in `SwiftUIPlus` (just relocates the same deprecation, this time on `.onChange(of:perform:)`).
+- Diverging the `laconicman/SwiftUIBackports` fork to add internal `#available` routing inside the backport and dropping the deprecation marker (architecturally clean, but a fork-only divergence to retire later).
+
+The warnings disappear naturally once `View.bottomActionSheet`'s deployment floor is raised to iOS 17 and the call sites can move to the native `.onChange(of:_:)` directly.
+
 **Alternative implementation: own a `UIWindow` at `UIWindow.Level.alert`.**
 
 Considered and not adopted in PR #1. The shape would be:
