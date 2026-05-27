@@ -156,6 +156,7 @@ private extension BottomActionSheet {
         let sheetContent: () -> SheetContent
 
         @State private var coverPresented: Bool = false
+        @State private var presentationKey: Int = 0
 
         func body(content: Content) -> some View {
             content
@@ -165,6 +166,7 @@ private extension BottomActionSheet {
                         isPresented: $isPresented,
                         onCardExitComplete: dropCover
                     )
+                    .id(presentationKey)
                 }
                 .versionedOnChange(of: isPresented) { newValue in
                     if newValue && !coverPresented { presentCover() }
@@ -197,13 +199,22 @@ private extension BottomActionSheet {
         private func dropCover() {
             var transaction = Transaction()
             transaction.disablesAnimations = true
-            withTransaction(transaction) { coverPresented = false }
-            // If the consumer flipped `isPresented` back to true while the
-            // exit animation was still running, `.onChange(of: isPresented)`
-            // above will not re-fire (the value didn't change from its
-            // perspective). Re-present here so the binding stays consistent
-            // with what the user sees.
-            if isPresented { presentCover() }
+            if isPresented {
+                // Rapid-toggle: consumer flipped `isPresented` back to true
+                // while the exit animation was still running. Keep the
+                // `.fullScreenCover` modal up (no UIKit dismiss/re-present
+                // cycle) and bump the Cover's identity so SwiftUI replaces
+                // it with a fresh instance whose @State (isVisible,
+                // isAnimatingExit, dragTranslation) is reset for the
+                // re-entry animation.
+                withTransaction(transaction) { presentationKey += 1 }
+            } else {
+                // Normal case: consumer's binding stayed false; drop the
+                // modal. `coverPresented` going false tears down the
+                // Cover; the next `presentCover()` call (if any) will
+                // instantiate a fresh one without needing the id bump.
+                withTransaction(transaction) { coverPresented = false }
+            }
         }
     }
 
@@ -221,6 +232,7 @@ private extension BottomActionSheet {
         let sheetContent: (Item) -> SheetContent
 
         @State private var coverItem: Item? = nil
+        @State private var presentationKey: Int = 0
 
         func body(content: Content) -> some View {
             content
@@ -231,6 +243,7 @@ private extension BottomActionSheet {
                             isPresented: itemPresented,
                             onCardExitComplete: dropCover
                         )
+                        .id(presentationKey)
                     }
                 }
                 .versionedOnChange(of: item?.id) { newId in
@@ -287,12 +300,22 @@ private extension BottomActionSheet {
         private func dropCover() {
             var transaction = Transaction()
             transaction.disablesAnimations = true
-            withTransaction(transaction) { coverItem = nil }
-            // Same rapid-toggle protection as IsPresentedModifier.dropCover:
-            // if the consumer re-set `item` to a non-nil value during the
-            // exit animation, `.onChange(of: item?.id)` will not re-fire for
-            // an identity that's already been seen, so re-present here.
-            if item != nil { presentCover() }
+            if item != nil {
+                // Rapid-toggle: consumer re-set `item` to a non-nil value
+                // while the exit animation was still running. Keep the
+                // `.fullScreenCover` modal up and bump the Cover's identity
+                // so SwiftUI replaces it with a fresh instance whose @State
+                // is reset for the re-entry animation. Avoids the UIKit
+                // dismiss/re-present cycle a `coverItem = nil` would
+                // otherwise force.
+                withTransaction(transaction) {
+                    coverItem = item
+                    presentationKey += 1
+                }
+            } else {
+                // Normal case: consumer's `item` stayed nil; drop the modal.
+                withTransaction(transaction) { coverItem = nil }
+            }
         }
     }
 
