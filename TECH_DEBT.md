@@ -34,7 +34,7 @@ Considered and not adopted in PR #1. The shape would be:
 What we gain if we ever revisit:
 
 - No `Transaction.disablesAnimations` trick at all — there is no system modal animation to suppress.
-- No SwiftUIBackports `presentationBackground` dependency for the cover itself — the host's background is clear from construction. This would also let `SwiftUIPlus`'s `Package.swift` flip away from the temporary fork pin without waiting on the upstream `presentationBackground` backport.
+- No SwiftUIBackports `presentationBackground` dependency for the cover itself — the host's background is clear from construction. This would also let `SwiftUIPlus`'s `Package.swift` flip away from the `laconicman/SwiftUIBackports` fork pin without waiting on the upstream `presentationBackground` backport.
 - Deployment floor for this modifier could drop to iOS 13 (the current floor is constrained by `.fullScreenCover` + the binding-wrapper trick).
 - Works above other modals (`.sheet` / `.fullScreenCover` opened by the same screen) because the overlay is on its own window.
 
@@ -49,7 +49,7 @@ What it costs:
 - The library opens a "robust modal additions" track (overlays that need to escape sheet contexts, in-app toasts that survive across navigation, etc.) and ends up needing a UIWindow overlay anyway — fold `bottomActionSheet` into that backend so we delete both SwiftUI tricks above.
 - Apple changes the behaviour of `Transaction.disablesAnimations` at the binding-mutation site in a future iOS release.
 - `CATransaction.setCompletionBlock` stops firing reliably under `withAnimation` for any reason.
-- The temporary `laconicman/SwiftUIBackports` fork pin in `Package.swift` becomes hard to retire — at that point a `UIWindow`-overlay implementation removes the underlying `presentationBackground` dependency entirely.
+- The `laconicman/SwiftUIBackports` fork pin in `Package.swift` becomes hard to retire (i.e. the upstream presentationBackground backport stalls indefinitely) — at that point a `UIWindow`-overlay implementation removes the underlying `presentationBackground` dependency entirely.
 
 **References.**
 
