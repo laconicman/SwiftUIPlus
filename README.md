@@ -3,6 +3,7 @@
 ![tvOS](https://img.shields.io/badge/tvOS-00B9BB)
 ![ios](https://img.shields.io/badge/iOS-0C62C7)
 [![swift](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fshaps80%2FSwiftUIPlus%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/shaps80/SwiftUIPlus)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/laconicman/SwiftUIPlus)
 
 # SwiftUI Plus
 
