@@ -1,0 +1,12 @@
+{
+  "repo_notes": [
+    {
+      "content": "SCOPE — this is a FORK, and the wiki must say so first. The upstream project is shaps80/SwiftUIPlus and the bulk of Sources/SwiftUIPlus/ is upstream's work, documented by upstream's README.md and LICENSE.md. Do not present the library as this fork's design. What this fork adds is a bottomActionSheet modifier, developed across several commits and then split into per-aspect files, together with the fixes it required: suppressing the system animation in ItemModifier.onAppear, decoupling ItemModifier presentation from item identity, re-presenting a cover after exit when the binding remained true, and replacing a dropCover transaction cycle with an identity bump on Cover. A versionedOnChange shim introduced to localise an iOS 17 deprecation was later replaced by Backport.onChange. TECH_DEBT.md is this fork's own file and records what those additions still owe.",
+      "author": "maintainer"
+    },
+    {
+      "content": "DEPENDENCY CONSTRAINT that must not be missed. This fork does not depend on upstream SwiftUIBackports: it is pinned to laconicman/SwiftUIBackports, currently at fork tag 26.1.0, because the bottomActionSheet work needs backports that exist only in that fork. Anyone adopting this package therefore takes on both forks, not one, and cannot substitute upstream SwiftUIBackports without losing the modifiers this one depends on. Say that plainly rather than describing the dependency as SwiftUIBackports generically.",
+      "author": "maintainer"
+    }
+  ]
+}
